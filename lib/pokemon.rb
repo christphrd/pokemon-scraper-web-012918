@@ -1,14 +1,12 @@
 require 'pry'
 
 class Pokemon
-  attr_reader :name, :type, :db, :id
+  attr_accessor :name, :type, :db, :id, :hp
 
   def initialize(params)
-    @name = params[:name]
-    @type = params[:type]
-    @id = params[:id]
-
-    @db = params[:db]
+    params.each do |k,v|
+      self.send("#{k}=", v)
+    end
   end
 
   def self.save(name, type, db)
@@ -29,7 +27,19 @@ class Pokemon
 
     pokemon = db.execute(sql, id)
     pokemon.flatten!
-    pokemon_hash = {name: pokemon[1], id: pokemon[0], type: pokemon[2]}
+    pokemon_hash = {name: pokemon[1], id: pokemon[0], type: pokemon[2], hp: pokemon[3]}
     Pokemon.new(pokemon_hash)
   end
+
+  def alter_hp(new_hp, db)
+    # sql = <<-SQL
+    #   UPDATE pokemon
+    #   SET hp = ?
+    #   WHERE id = ?
+    # SQL
+
+    db.execute('UPDATE pokemon SET hp = ? WHERE id = ?', new_hp, self.id)
+  end
+
+
 end
